@@ -72,6 +72,21 @@ elif BOT=="breeze":
 
     API_USE = False
     PATH_2_MODEL = "/user_data/DG/clean_data/model/MediaTek-Research/Breeze-7B-Instruct-v1_0"
+    print("\tbefore GenerationConfig")
+    GENERATION_CONFIG = GenerationConfig(
+        # max_new_tokens=10,
+        # do_sample=True,
+        # temperature=1,
+        num_beams = 6,
+        num_return_sequences=1, # < num_beams
+
+        # no_repeat_ngram_size=2,
+        early_stopping=False,
+        max_length=4096, #CUDA oom 輸出有關
+        # top_p=0.92,   # 前 p 可能，共多少個不知道
+        # top_k=15,     # 前 k 個，共佔多少機率不知道
+    )
+    print("\tbefore GenerationConfig")
 
 
 # about BM25
@@ -179,22 +194,6 @@ def call_model(prompt, model_and_tokenizer: None):
     else:
         model, tokenizer = model_and_tokenizer
 
-        print("\tbefore GenerationConfig")
-        generation_config = GenerationConfig(
-            # max_new_tokens=10,
-            # do_sample=True,
-            # temperature=1,
-            num_beams = 6,
-            num_return_sequences=1, # < num_beams
-
-            # no_repeat_ngram_size=2,
-            early_stopping=False,
-            max_length=4096, #CUDA oom 輸出有關
-            # top_p=0.92,   # 前 p 可能，共多少個不知道
-            # top_k=15,     # 前 k 個，共佔多少機率不知道
-        )
-        print("\tbefore GenerationConfig")
-
         print("\tbefore tokenize")
         sentence_input = tokenizer(
             prompt,
@@ -206,7 +205,7 @@ def call_model(prompt, model_and_tokenizer: None):
         print("\tbefore generate")
         response = model.generate(
             **sentence_input,
-            generation_config=generation_config,
+            generation_config=GENERATION_CONFIG,
         )
         print("\tafter generate")
         print(f"\tresponse =\n\t\t{response}")
@@ -214,10 +213,6 @@ def call_model(prompt, model_and_tokenizer: None):
         response = tokenizer.batch_decode(
             response[:, sentence_input.input_ids.size(1) :], skip_special_tokens=True
             )
-        print(f"\tresponse =\n\t\t{response}")
-        print(f"\tresponse[0] =\n\t\t{response[0]}")
-
-        response = response[0]
         print(f"\tresponse =\n\t\t{response}")
 
     print("exit call_model")
@@ -247,10 +242,11 @@ def call_BM25(search_key):
     print("exit call_BM25")
     return total_docid, total_doc
 
+
 def save_logging(file_dir, total_logging):
     """123
     """
-    
+
     now_time = NOW.strftime("%Y_%m%d_%H%M")
     file_name = f"{BOT}_{now_time}.json"
     file_dir = "/user_data/DG/hyde_with_table/logging/hyde_the_query"
@@ -260,9 +256,9 @@ def save_logging(file_dir, total_logging):
         print("\t\tstart dealing file")
         json.dump(total_logging, file, ensure_ascii=False)
         print("\t\tend dealing file")
-        
+
     return file_path
-    
+
 
 def new_logging(query):
     """123
@@ -272,8 +268,9 @@ def new_logging(query):
     total_docid, total_doc = call_BM25(query)
     logging['docid'] = total_docid
     logging['doc'] = total_doc
-    
+
     return logging
+
 
 def exam_hyde_query(model_and_tokenizer):
     """123
@@ -292,44 +289,20 @@ def exam_hyde_query(model_and_tokenizer):
 
         query = query['query']
         print(f"\t\tquery =\n\t\t\t{query}")
-
         total_logging[-1]['original'] = new_logging(query)
-
-        # total_logging[-1]['original'] = {}
-        # total_logging[-1]['original']['query'] = query
-        # total_docid, total_doc = call_BM25(query)
-        # total_logging[-1]['original']['docid'] = total_docid
-        # total_logging[-1]['original']['doc'] = total_doc
 
         full_prompt = create_full_prompt(query)
         hyde_query = call_model(full_prompt, model_and_tokenizer)
         print(f"\t\thyde_query =\n\t\t\t{hyde_query}")
-
         total_logging[-1]['hyde'] = new_logging(query)
-
-        # total_logging[-1]['hyde'] = {}
-        # total_logging[-1]['hyde']['prompt'] = full_prompt
-        # total_docid, total_doc = call_BM25(hyde_query)
-        # total_logging[-1]['hyde']['query'] = hyde_query
-        # total_logging[-1]['hyde']['docid'] = total_docid
-        # total_logging[-1]['hyde']['doc'] = total_doc
 
 
     file_dir = "/user_data/DG/hyde_with_table/logging/hyde_the_query"
     save_logging(file_dir, total_logging)
 
-    # now_time = NOW.strftime("%Y_%m%d_%H%M")
-    # file_name = f"{BOT}_{now_time}.json"
-    # file_dir = "/user_data/DG/hyde_with_table/logging/hyde_the_query"
-
-    # file_path = f"{file_dir}/{file_name}"
-    # with open(file_path, 'w', encoding='utf-8') as file:
-    #     print("\t\tstart dealing file")
-    #     json.dump(total_logging, file, ensure_ascii=False)
-    #     print("\t\tend dealing file")
-
     print("exit exam_hyde_query")
     return total_logging
+
 
 def main() -> None:
     """123
@@ -340,10 +313,8 @@ def main() -> None:
         model_and_tokenizer = None
     else:
         model_and_tokenizer = init_model()
-        
-    exam_hyde_query(model_and_tokenizer)
 
-    
+    exam_hyde_query(model_and_tokenizer)
 
     print("exit main")
 
