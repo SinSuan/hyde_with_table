@@ -142,6 +142,8 @@ def call_model(BOT, prompt, model_and_tokenizer: None):
             model="gpt-3.5-turbo-1106", messages=messages, temperature=0
         )
         response = response.choices[0].message.content
+    
+    response = response[0]
 
     print("exit call_model")
     return response
