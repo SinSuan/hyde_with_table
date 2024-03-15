@@ -87,16 +87,23 @@ def save_logging(file_dir, total_logging):
     return file_path
 
 
-def new_logging(SEARCHE, query):
+def new_logging(total_query):
     """123
     """
-    logging = {}
-    logging['query'] = query
-    total_docid, total_doc = call_BM25(SEARCHE, query)
-    logging['docid'] = total_docid
-    logging['doc'] = total_doc
+    total_query_docids, total_query_docs = call_BM25(total_query)
 
-    return logging
+    total_logging = []
+    for query, query_docids, query_docs in \
+        zip(total_query, total_query_docids, total_query_docs):
+
+        logging = {
+            'query': query,
+            'docid': query_docids,
+            'doc': query_docs
+        }
+        total_logging.append(logging)
+
+    return total_logging
 
 
 def exam_hyde_query(model_and_tokenizer):
@@ -110,21 +117,24 @@ def exam_hyde_query(model_and_tokenizer):
         total_query = json.load(file)
         print("\t\tend dealing PSEUDO_QUERY")
 
-
-    SEARCHER = init_BM25()
-    total_logging = []
+    total_query = [query['query'] for query in total_query]
+    total_hyde_query = []
     for query in total_query:
-        print(f"\t\tquery =\n\t\t\t{query}")
-        total_logging.append({})
-
-        query = query['query']
-        print(f"\t\tquery =\n\t\t\t{query}")
-        total_logging[-1]['original'] = new_logging(SEARCHER, query)
-
         full_prompt = create_full_prompt(query)
         hyde_query = call_model(BOT, full_prompt, model_and_tokenizer)
-        print(f"\t\thyde_query =\n\t\t\t{hyde_query}")
-        total_logging[-1]['hyde'] = new_logging(SEARCHER, query)
+        total_hyde_query.append(hyde_query)
+
+    original_query_logging = new_logging(total_query)
+    hyde_query_logging = new_logging(total_hyde_query)
+
+    total_logging = []
+    for original, hyde in zip(original_query_logging, hyde_query_logging):
+
+        logging = {
+            'original' : original,
+            'hyde' : hyde
+        }
+        total_logging.append(logging)
 
 
     file_dir = "/user_data/DG/hyde_with_table/logging/hyde_the_query"
