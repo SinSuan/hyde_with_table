@@ -90,6 +90,7 @@ def save_logging(file_dir, total_logging):
 def new_logging(total_query):
     """123
     """
+    print("enter new_logging")
     total_query_docids, total_query_docs = call_BM25(total_query)
 
     total_logging = []
@@ -103,6 +104,7 @@ def new_logging(total_query):
         }
         total_logging.append(logging)
 
+    print("exist new_logging")
     return total_logging
 
 
@@ -117,12 +119,19 @@ def exam_hyde_query(model_and_tokenizer):
         total_query = json.load(file)
         print("\t\tend dealing PSEUDO_QUERY")
 
+    print(f"before total_query = {total_query}")
     total_query = [query['query'] for query in total_query]
+    print(f"after total_query = {total_query}")
     total_hyde_query = []
     for query in total_query:
+        print(f"before query = {query}")
         full_prompt = create_full_prompt(query)
+        print(f"after query = {query}")
         hyde_query = call_model(BOT, full_prompt, model_and_tokenizer)
+        print(f"after hyde_query = {hyde_query}")
         total_hyde_query.append(hyde_query)
+    
+    print(f"after total_hyde_query = {total_hyde_query}")
 
     original_query_logging = new_logging(total_query)
     hyde_query_logging = new_logging(total_hyde_query)

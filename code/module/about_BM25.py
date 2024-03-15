@@ -44,13 +44,16 @@ def init_BM25():
 def call_BM25(total_query):
     """123
     """
-    print("enter call_BM25")
+    print("\tenter call_BM25")
 
+    
+    print(f"\ttotal_query =\n\t{total_query}")
     SEARCHER = init_BM25()
     TOP_K = os.getenv("TOP_K")
     TOP_K = int(TOP_K)
     total_query_hits = []
     for query in total_query:
+        print(f"\t\tquery =\n\t\t{query}")
         total_query_hits.append(SEARCHER.search(query, TOP_K))
 
     total_query_docids = []
@@ -71,5 +74,5 @@ def call_BM25(total_query):
         total_query_docids.append(total_docid)
         total_query_docs.append(total_doc)
 
-    print("exit call_BM25")
+    print("\texit call_BM25")
     return total_query_docids, total_query_docs
