@@ -70,24 +70,22 @@ def see_certain_result_doc(result_idx, docid_type):
     """
     with open(PATH_2_ORGANIZED_RESULT, 'r', encoding='utf-8') as file:
         total_organized_result = json.load(file)
-    
+
     query = {}
-    if docid_type == "intersection" or docid_type == "original":
+    if docid_type in ["intersection", "original"]:
         query["original"] = total_organized_result[result_idx]["original"]['query']
-    if docid_type == "intersection" or docid_type == "hyde":
+    if docid_type in ["intersection", "hyde"]:
         query["hyde"] = total_organized_result[result_idx]["hyde"]['query']
-    
+
     for docid in total_organized_result[result_idx][docid_type]['docid']:
         doc = SEARCHER.doc(docid).raw()
         doc = json.loads(doc)["contents"]
-        
 
-        
         print("*"*100)
         print(f"\n\tdocid = {docid}\n")
         print("*"*100)
-        for key in query:
-            print(f"query[{key}] = {query[key]}")
+        for key, value in query.items():
+            print(f"query[{key}] = {value}")
         print("*"*100)
         print()
         print(doc)
@@ -101,11 +99,11 @@ def main():
         organize_result()
 
     result_idx = 0
-    
+
     # docid_type = "original"
     # docid_type = "hyde"
     docid_type = "intersection"
-    
+
     see_certain_result_doc(result_idx, docid_type)
 
 if __name__ == "__main__":

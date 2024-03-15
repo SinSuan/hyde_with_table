@@ -1,6 +1,6 @@
 BM25/
 table_retrieval/
-prompt.json
+prompt/
 logging/
 .env
 datapath.json
