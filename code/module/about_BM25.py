@@ -46,7 +46,6 @@ def call_BM25(total_query):
     """
     print("\tenter call_BM25")
 
-    
     print(f"\ttotal_query =\n\t{total_query}")
     SEARCHER = init_BM25()
     TOP_K = os.getenv("TOP_K")
