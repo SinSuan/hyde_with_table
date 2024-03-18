@@ -36,26 +36,6 @@ UTC_8 = pytz.timezone('Asia/Taipei')
 NOW = UTC_NOW.replace(tzinfo=pytz.utc).astimezone(UTC_8)
 
 
-def create_full_prompt(user_prompt) -> str:
-    """
-    123
-    """
-    print("enter create_full_prompt")
-
-    # 讀取 prompt 的 components
-    datapath = os.getenv("DATAPATH_2_PROMPT")
-    with open(datapath, 'r', encoding='utf-8') as file:
-        print("\tstart dealing file")
-        total_prompt = json.load(file)["hyde_query"]
-        system_prompt = total_prompt[BOT]
-        print("\tend dealing file")
-
-    full_prompt = f"<s> {system_prompt} [INST] 幫我解釋以下表格：{user_prompt} [/INST] "
-
-    print("exit create_full_prompt")
-    return full_prompt
-
-
 def save_logging(file_dir, total_logging):
     """123
     """
@@ -94,6 +74,26 @@ def new_logging(total_query):
     return total_logging
 
 
+def create_full_prompt(user_prompt) -> str:
+    """
+    123
+    """
+    print("enter create_full_prompt")
+
+    # 讀取 prompt 的 components
+    datapath = os.getenv("DATAPATH_2_PROMPT")
+    with open(datapath, 'r', encoding='utf-8') as file:
+        print("\tstart dealing file")
+        total_prompt = json.load(file)["hyde_query"]
+        system_prompt = total_prompt[BOT]
+        print("\tend dealing file")
+
+    full_prompt = f"<s> {system_prompt} [INST] 你現在是一位農業病蟲害防治專家，幫我解釋以下表格：{user_prompt} [/INST] "
+
+    print("exit create_full_prompt")
+    return full_prompt
+
+
 def exam_hyde_query(model_and_tokenizer):
     """123
     """
@@ -130,6 +130,15 @@ def exam_hyde_query(model_and_tokenizer):
 
     print("exit exam_hyde_query")
     return total_logging
+
+
+def hyde_table():
+    """123
+    """
+    datapath = os.getenv("DATAPATH_2_PSEUDO_QUERY")
+    with open(datapath, 'r', encoding='utf-8') as file:
+        total_ndr_table = json.load(file)
+    pass
 
 
 def main() -> None:
